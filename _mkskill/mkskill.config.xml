@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mkskill>
+  <project id="main" name="quevu-pubsub" project-type="Go-Module">
+    <meta>
+      <module>github.com/pablo-botella/quevu-pubsub</module>
+      <license>MIT</license>
+      <description>Google Cloud Pub/Sub as quevu components for Go, in both directions: a consumer that publishes what a log distributes to a topic, and an input that reads a subscription and feeds a log. Not yet verified against the real service. Use when working with github.com/pablo-botella/quevu-pubsub (package qpubsub).</description>
+    </meta>
+  </project>
+</mkskill>
