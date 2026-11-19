@@ -21,7 +21,7 @@ cfg := qpubsub.Config{
 }
 
 out, _ := qpubsub.NewConsumer(ctx, cfg)
-orders, _ := qlog.New("orders", qlog.WithConsumer(out))
+orders, _ := qhub.New("orders", qhub.WithConsumer(out))
 
 in, _ := qpubsub.NewSource(ctx, cfg, incoming)
 panel.Add("orders subscription", in)
