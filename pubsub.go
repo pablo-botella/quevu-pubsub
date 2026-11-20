@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub/v2"
-	"github.com/pablo-botella/quevu"
+	quevu "github.com/pablo-botella/quevu-kernel"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
