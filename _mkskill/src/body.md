@@ -25,7 +25,7 @@ One chunk is one message.
 ```go
 qpubsub.Config{
 	ProjectID:       "...", // required
-	Topic:           "...", // for a Consumer
+	Topic:           "...", // for a Writer
 	Subscription:    "...", // for a Source
 	CredentialsFile: "",    // a service account key file
 	CredentialsJSON: nil,   // or its contents

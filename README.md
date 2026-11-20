@@ -14,8 +14,8 @@ cfg := qpubsub.Config{
 	Subscription: "orders-quevu",  // input comes from a subscription to it
 }
 
-out, _ := qpubsub.NewConsumer(ctx, cfg)
-orders, _ := qhub.New("orders", qhub.WithConsumer(out))
+out, _ := qpubsub.NewWriter(ctx, cfg)
+orders, _ := qhub.New("orders", qhub.WithWriter(out))
 
 in, _ := qpubsub.NewSource(ctx, cfg, incoming)
 panel.Add("orders subscription", in)
@@ -48,7 +48,7 @@ One chunk is one message.
 ```go
 qpubsub.Config{
 	ProjectID:       "...", // required
-	Topic:           "...", // for a Consumer
+	Topic:           "...", // for a Writer
 	Subscription:    "...", // for a Source
 	CredentialsFile: "",    // a service account key file
 	CredentialsJSON: nil,   // or its contents

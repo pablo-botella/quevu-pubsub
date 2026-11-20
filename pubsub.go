@@ -1,10 +1,10 @@
 // Package qpubsub connects quevu to Google Cloud Pub/Sub in both
 // directions.
 //
-//   - Consumer is a consumer of a log (quevu.Consumer): what the log
+//   - Writer is a writer of a hub (quevu.Writer): what the log
 //     distributes is published to a topic.
 //   - Source is an input (a quevu.Unit): what arrives at a subscription
-//     is fed to a log, and follows the normal way to its consumers.
+//     is fed to a log, and follows the normal way to its writers.
 //
 // The two directions are not symmetric here. Output goes to a topic;
 // input comes from a subscription to that topic, which is a different
@@ -54,7 +54,7 @@ var ErrTooLarge = errors.New("qpubsub: chunk larger than a Pub/Sub message")
 type Config struct {
 	// ProjectID is the Google Cloud project.
 	ProjectID string
-	// Topic is where a Consumer publishes: its name, or its full path.
+	// Topic is where a Writer publishes: its name, or its full path.
 	Topic string
 	// Subscription is where a Source reads from: its name, or its full
 	// path. It is a subscription to the topic, not the topic.
@@ -123,15 +123,17 @@ func (t topic) stop() {
 	t.client.Close()
 }
 
-// Consumer publishes the chunks of a log to a topic.
-type Consumer struct {
+// Writer publishes the chunks of a log to a topic.
+type Writer struct {
+	fails quevu.Failures // the body of Run, and what it could not write
+
 	pub publisher
 	// timeout bounds the wait for a batch to be confirmed.
 	timeout time.Duration
 }
 
-// NewConsumer connects to the topic for publishing.
-func NewConsumer(ctx context.Context, cfg Config) (*Consumer, error) {
+// NewWriter connects to the topic for publishing.
+func NewWriter(ctx context.Context, cfg Config) (*Writer, error) {
 	if cfg.Topic == "" {
 		return nil, errors.New("qpubsub: no topic")
 	}
@@ -139,14 +141,14 @@ func NewConsumer(ctx context.Context, cfg Config) (*Consumer, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Consumer{pub: topic{p: c.Publisher(cfg.Topic), client: c}, timeout: 60 * time.Second}, nil
+	return &Writer{pub: topic{p: c.Publisher(cfg.Topic), client: c}, timeout: 60 * time.Second}, nil
 }
 
 // Write publishes a batch, one message per chunk, and returns when the
 // service has confirmed every one of them or said why not. A chunk too
 // large for a message is left out and reported with ErrTooLarge; the
 // rest are published.
-func (c *Consumer) Write(batch []quevu.Chunk) error {
+func (c *Writer) Write(batch []quevu.Chunk) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	var errs []error
@@ -180,9 +182,18 @@ func (c *Consumer) Write(batch []quevu.Chunk) error {
 }
 
 // Close sends what is still waiting and releases the connection.
-func (c *Consumer) Close() error {
+func (c *Writer) Close() error {
 	c.pub.stop()
 	return nil
 }
 
-var _ quevu.Consumer = (*Consumer)(nil)
+var _ quevu.Writer = (*Writer)(nil)
+
+// Run receives from the channel the hub gave this writer until it is
+// closed, writing what arrives in batches, and closes the writer at the
+// end. It is what makes it a quevu.Writer.
+func (c *Writer) Run(in <-chan quevu.Chunk) error { return c.fails.Drain(in, 0, c) }
+
+// Failed returns the chunks lost so far in failed batches, and the last
+// error.
+func (c *Writer) Failed() (uint64, error) { return c.fails.Failed() }

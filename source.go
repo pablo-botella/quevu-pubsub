@@ -98,7 +98,7 @@ func (s *Source) run(ctx context.Context, cancel context.CancelFunc) error {
 	err := s.sub.receive(ctx, func(data []byte) bool {
 		// A message is acknowledged only once it is in the log, so the
 		// worst that can happen is that it arrives twice.
-		if _, aerr := s.into.Append(data); aerr != nil {
+		if aerr := s.into.Append(data); aerr != nil {
 			mu.Lock()
 			if refused == nil {
 				refused = fmt.Errorf("qpubsub: the log did not take a message: %w", aerr)

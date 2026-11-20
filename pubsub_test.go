@@ -98,14 +98,14 @@ type log struct {
 
 func (l *log) Write(p []byte) (int, error) { return len(p), nil }
 
-func (l *log) Append(data []byte) (uint64, error) {
+func (l *log) Append(data []byte) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 	if l.refuse != "" && string(data) == l.refuse {
-		return 0, errors.New("log closed")
+		return errors.New("log closed")
 	}
 	l.got = append(l.got, string(data))
-	return uint64(len(l.got)), nil
+	return nil
 }
 
 func (l *log) all() []string {
@@ -133,7 +133,7 @@ func wait(t *testing.T, what string, ok func() bool) {
 
 func TestOneChunkOneMessageAsItIs(t *testing.T) {
 	top := &fakeTopic{}
-	c := &Consumer{pub: top, timeout: time.Second}
+	c := &Writer{pub: top, timeout: time.Second}
 	// Pub/Sub carries bytes: nothing needs encoding, not even nothing.
 	in := []string{"text áñ", "\x00\xff binary", ""}
 	if err := c.Write(chunks(in...)); err != nil {
@@ -159,7 +159,7 @@ func TestOneChunkOneMessageAsItIs(t *testing.T) {
 
 func TestAChunkTooLargeIsLeftOutAndSaid(t *testing.T) {
 	top := &fakeTopic{}
-	c := &Consumer{pub: top, timeout: time.Second}
+	c := &Writer{pub: top, timeout: time.Second}
 	err := c.Write(chunks("before", strings.Repeat("x", MaxMessage), "after"))
 	if !errors.Is(err, ErrTooLarge) {
 		t.Fatalf("got %v", err)
@@ -172,7 +172,7 @@ func TestAChunkTooLargeIsLeftOutAndSaid(t *testing.T) {
 func TestWhatTheServiceDoesNotConfirmIsAnError(t *testing.T) {
 	boom := errors.New("permission denied")
 	top := &fakeTopic{refuse: map[string]error{"b": boom}}
-	c := &Consumer{pub: top, timeout: time.Second}
+	c := &Writer{pub: top, timeout: time.Second}
 	err := c.Write(chunks("a", "b", "c"))
 	if !errors.Is(err, boom) || !strings.Contains(err.Error(), "1 of 3") {
 		t.Fatalf("got %v", err)
@@ -260,10 +260,10 @@ func TestASubscriptionThatFailsIsAFailure(t *testing.T) {
 
 func TestConfigIsChecked(t *testing.T) {
 	ctx := context.Background()
-	if _, err := NewConsumer(ctx, Config{ProjectID: "p"}); err == nil {
+	if _, err := NewWriter(ctx, Config{ProjectID: "p"}); err == nil {
 		t.Fatal("no topic accepted")
 	}
-	if _, err := NewConsumer(ctx, Config{Topic: "t"}); err == nil {
+	if _, err := NewWriter(ctx, Config{Topic: "t"}); err == nil {
 		t.Fatal("no project accepted")
 	}
 	if _, err := NewSource(ctx, Config{ProjectID: "p", Subscription: "s"}, nil); err == nil {
@@ -274,7 +274,7 @@ func TestConfigIsChecked(t *testing.T) {
 	}
 	// Building a client for an emulator needs no network and no account:
 	// the connection is made when it is first used.
-	c, err := NewConsumer(ctx, Config{ProjectID: "example-project", Topic: "example-topic", Endpoint: "127.0.0.1:1"})
+	c, err := NewWriter(ctx, Config{ProjectID: "example-project", Topic: "example-topic", Endpoint: "127.0.0.1:1"})
 	if err != nil || c == nil {
 		t.Fatalf("client: %v", err)
 	}
