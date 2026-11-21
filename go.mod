@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	cloud.google.com/go/pubsub/v2 v2.9.0
-	github.com/pablo-botella/quevu-kernel v0.0.0
+	github.com/pablo-botella/quevu v0.0.0
 	google.golang.org/api v0.304.0
 	google.golang.org/grpc v1.84.0
 )
@@ -44,4 +44,4 @@ require (
 	google.golang.org/protobuf v1.36.12 // indirect
 )
 
-replace github.com/pablo-botella/quevu-kernel => ../quevu-kernel
+replace github.com/pablo-botella/quevu => ../quevu

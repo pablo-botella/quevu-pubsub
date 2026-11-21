@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	quevu "github.com/pablo-botella/quevu-kernel"
+	"github.com/pablo-botella/quevu"
 )
 
 // These tests run against stand-ins for a topic and a subscription. They

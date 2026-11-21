@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 
 	"cloud.google.com/go/pubsub/v2"
-	quevu "github.com/pablo-botella/quevu-kernel"
+	"github.com/pablo-botella/quevu"
 )
 
 // receiver is the part of a Pub/Sub subscription this package uses. It

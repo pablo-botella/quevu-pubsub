@@ -1,6 +1,6 @@
 # quevu-pubsub
 
-Google Cloud Pub/Sub as [quevu](https://github.com/pablo-botella/quevu-kernel)
+Google Cloud Pub/Sub as [quevu](https://github.com/pablo-botella/quevu)
 components, in both directions.
 
 > **Not verified against the real service.** It is tested against
