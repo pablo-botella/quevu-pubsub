@@ -21,7 +21,7 @@ cfg := qpubsub.Config{
 }
 
 out, _ := qpubsub.NewWriter(ctx, cfg)
-orders, _ := quevu.NewQHub("orders", quevu.WithWriter(out))
+orders, _ := qkernel.NewQHub("orders", qkernel.WithWriter(out))
 
 in, _ := qpubsub.NewSource(ctx, cfg, incoming)
 panel.Add("orders subscription", in)

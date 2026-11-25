@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pablo-botella/quevu"
+	"github.com/pablo-botella/quevu/qkernel"
 )
 
 // These tests run against stand-ins for a topic and a subscription. They
@@ -114,10 +114,10 @@ func (l *log) all() []string {
 	return append([]string(nil), l.got...)
 }
 
-func chunks(texts ...string) []quevu.Chunk {
-	out := make([]quevu.Chunk, len(texts))
+func chunks(texts ...string) []qkernel.Chunk {
+	out := make([]qkernel.Chunk, len(texts))
 	for i, t := range texts {
-		out[i] = quevu.Chunk{Seq: uint64(i + 1), Time: time.Unix(1700000000, int64(i)), Data: []byte(t)}
+		out[i] = qkernel.Chunk{Seq: uint64(i + 1), Time: time.Unix(1700000000, int64(i)), Data: []byte(t)}
 	}
 	return out
 }

@@ -1,9 +1,9 @@
 // Package qpubsub connects quevu to Google Cloud Pub/Sub in both
 // directions.
 //
-//   - Writer is a writer of a hub (quevu.Writer): what the log
+//   - Writer is a writer of a hub (qkernel.Writer): what the log
 //     distributes is published to a topic.
-//   - Source is an input (a quevu.Unit): what arrives at a subscription
+//   - Source is an input (a qkernel.Unit): what arrives at a subscription
 //     is fed to a log, and follows the normal way to its writers.
 //
 // The two directions are not symmetric here. Output goes to a topic;
@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/pubsub/v2"
-	"github.com/pablo-botella/quevu"
+	"github.com/pablo-botella/quevu/qkernel"
 	"google.golang.org/api/option"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -125,7 +125,7 @@ func (t topic) stop() {
 
 // Writer publishes the chunks of a log to a topic.
 type Writer struct {
-	fails quevu.Failures // the body of Run, and what it could not write
+	fails qkernel.Failures // the body of Run, and what it could not write
 
 	pub publisher
 	// timeout bounds the wait for a batch to be confirmed.
@@ -148,7 +148,7 @@ func NewWriter(ctx context.Context, cfg Config) (*Writer, error) {
 // service has confirmed every one of them or said why not. A chunk too
 // large for a message is left out and reported with ErrTooLarge; the
 // rest are published.
-func (c *Writer) Write(batch []quevu.Chunk) error {
+func (c *Writer) Write(batch []qkernel.Chunk) error {
 	ctx, cancel := context.WithTimeout(context.Background(), c.timeout)
 	defer cancel()
 	var errs []error
@@ -187,12 +187,12 @@ func (c *Writer) Close() error {
 	return nil
 }
 
-var _ quevu.Writer = (*Writer)(nil)
+var _ qkernel.Writer = (*Writer)(nil)
 
 // Run receives from the channel the hub gave this writer until it is
 // closed, writing what arrives in batches, and closes the writer at the
-// end. It is what makes it a quevu.Writer.
-func (c *Writer) Run(in <-chan quevu.Chunk) error { return c.fails.Drain(in, 0, c) }
+// end. It is what makes it a qkernel.Writer.
+func (c *Writer) Run(in <-chan qkernel.Chunk) error { return c.fails.Drain(in, 0, c) }
 
 // Failed returns the chunks lost so far in failed batches, and the last
 // error.

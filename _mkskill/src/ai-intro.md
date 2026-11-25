@@ -7,8 +7,8 @@ mkskill:
 # quevu-pubsub - agent notes
 
 Go package `github.com/pablo-botella/quevu-pubsub`, imported as `qpubsub`:
-`qpubsub.Writer` (a `quevu.Writer`) and `qpubsub.Source` (a
-`quevu.Unit` and `quevu.Exiter` that feeds a `quevu.Intake`). Depends on
+`qpubsub.Writer` (a `qkernel.Writer`) and `qpubsub.Source` (a
+`qkernel.Unit` and `qkernel.Exiter` that feeds a `qkernel.Intake`). Depends on
 `quevu` and on `cloud.google.com/go/pubsub/v2`, and on no other provider's
 SDK.
 

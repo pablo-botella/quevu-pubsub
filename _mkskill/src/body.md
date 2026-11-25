@@ -14,7 +14,7 @@ In Pub/Sub the two ends have different names:
 
 A message that has been received must be acknowledged, or it is delivered
 again. So receiving is *at least once*. The source acknowledges a message
-only after the log has accepted it (`quevu.Intake.Append` returned without
+only after the log has accepted it (`qkernel.Intake.Append` returned without
 error). The worst that can happen is that a message arrives twice; it is
 never lost between the subscription and the log.
 

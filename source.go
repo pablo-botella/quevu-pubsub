@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 
 	"cloud.google.com/go/pubsub/v2"
-	"github.com/pablo-botella/quevu"
+	"github.com/pablo-botella/quevu/qkernel"
 )
 
 // receiver is the part of a Pub/Sub subscription this package uses. It
@@ -40,7 +40,7 @@ func (s subscription) close() { s.client.Close() }
 // Source reads a subscription and feeds what arrives to a log.
 type Source struct {
 	sub  receiver
-	into quevu.Intake
+	into qkernel.Intake
 
 	mu     sync.Mutex
 	cancel context.CancelFunc
@@ -52,7 +52,7 @@ type Source struct {
 
 // NewSource connects to the subscription for receiving. into is the log
 // every message is appended to, as one chunk each.
-func NewSource(ctx context.Context, cfg Config, into quevu.Intake) (*Source, error) {
+func NewSource(ctx context.Context, cfg Config, into qkernel.Intake) (*Source, error) {
 	if into == nil {
 		return nil, errors.New("qpubsub: no log to feed")
 	}
@@ -158,6 +158,6 @@ func (s *Source) Close() error {
 func (s *Source) Taken() uint64 { return s.taken.Load() }
 
 var (
-	_ quevu.Unit   = (*Source)(nil)
-	_ quevu.Exiter = (*Source)(nil)
+	_ qkernel.Unit   = (*Source)(nil)
+	_ qkernel.Exiter = (*Source)(nil)
 )
